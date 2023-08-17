@@ -1,4 +1,4 @@
-FROM hckops/kube-base:0.4.13
+FROM ghcr.io/la-cc/helm-dependencies-update-helper:0.0.7
 
 # https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
 ENV GITHUB_TOKEN=${GITHUB_TOKEN}
