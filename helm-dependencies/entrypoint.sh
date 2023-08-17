@@ -138,8 +138,6 @@ echo "[*] DRY_RUN=${PARAM_DRY_RUN}"
 gh --version
 gh auth status
 
-helm version
-
 # -------- Main  ------------ #
 start
 
