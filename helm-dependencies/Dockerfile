@@ -5,6 +5,6 @@ ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 ENV GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
 ENV GITHUB_SHA=${GITHUB_SHA}
 
-COPY entrypoint.sh /entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
