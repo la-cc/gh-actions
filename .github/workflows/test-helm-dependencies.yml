@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Helm Dependencies
-        uses: ./helm-dependencies-action
+        uses: ./helm-dependencies
         with:
           config-path: examples/dependencies.yaml
           user-email: "test-bot@users.noreply.github.com"
