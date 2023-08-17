@@ -101,7 +101,7 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 gh pr create --title "Update $name version from $version to $current_version" --body "$shift_diff_result" --base main --head update-helm-$sanitized_name-$current_version || true
 
                 # Get back to the source branch
-                git checkout $$PARAM_GIT_DEFAULT_BRANCH
+                git checkout $PARAM_GIT_DEFAULT_BRANCH
 
             else
                 echo "Branch already exists. Checking out to the existing branch." || true
