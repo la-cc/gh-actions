@@ -1,0 +1,39 @@
+name: test-helm-dependencies
+
+on:
+  # enable manual trigger
+  workflow_dispatch:
+  # https://cron.help
+  schedule:
+    # every 12 hours
+    - cron: "0 0,12 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/test-helm-dependencies.yml"
+      - "helm-dependencies-action/**"
+      - "examples/dependencies.yaml"
+
+jobs:
+  test-helm-dependencies:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Helm Dependencies
+        uses: ./helm-dependencies-action
+        with:
+          config-path: examples/dependencies.yaml
+          user-email: "test-bot@users.noreply.github.com"
+          user-name: "test-bot"
+          default-branch: "main"
+          dry-run: false
+        env:
+          # mandatory: not declared explicitly, but used by gh-cli
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # not required: declared only for documentation because they are automatically added at runtime
+          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
+          GITHUB_SHA: ${{ env.GITHUB_SHA }}
