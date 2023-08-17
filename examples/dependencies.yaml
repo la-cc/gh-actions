@@ -1,7 +1,7 @@
 dependencies:
   - name: "External DNS"
     source:
-      file: test-helm-chart/external-dns/Chart.yaml
+      file: examples/test-helm-chart/external-dns/Chart.yaml
       path: .dependencies[0].version
     repository:
       name: bitnami/external-dns
