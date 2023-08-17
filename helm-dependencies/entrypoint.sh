@@ -83,6 +83,9 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 git config --global user.email $PARAM_GIT_USER_EMAIL
                 git config --global user.name $PARAM_GIT_USER_NAME
 
+                # fetch existing remote branches
+                git fetch --all
+
                 # Replace the old version with the new version in the Chart.yaml file using sed
                 sed -i.bak "s/version: $version/version: $current_version/g" "$(basename $chart_file)" && rm "$(basename $chart_file).bak"
 
