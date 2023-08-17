@@ -12,7 +12,7 @@ on:
       - main
     paths:
       - ".github/workflows/test-helm-dependencies.yml"
-      - "helm-dependencies-action/**"
+      - "helm-dependencies/**"
       - "examples/dependencies.yaml"
 
 jobs:
