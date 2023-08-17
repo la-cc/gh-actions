@@ -18,9 +18,9 @@ function readFile() {
     echo "LS:"
     ls
     echo "DEBUG: file"
-    echo $file
+    echo "File: $file"
     echo "DEBUG: Config_Path"
-    echo "${CONFIG_PATH}"
+    echo "CONFIG_PATH: ${CONFIG_PATH}"
 
     # Get the number of dependencies
     # count=$(yq e '.dependencies | length' $file)
@@ -122,7 +122,7 @@ function readFile() {
 #         echo ""
 #     done
 
-}
+# }
 
 function start() {
     # Read the file
