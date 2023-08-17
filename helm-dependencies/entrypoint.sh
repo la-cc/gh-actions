@@ -13,7 +13,7 @@ PARAM_DRY_RUN=${5:?"Missing DRY_RUN"}
 
 function readFile() {
     # Read the file
-    file="${CONFIG_PATH}" # use absolute path
+    file="${PARAM_CONFIG_PATH}" # use absolute path
 
     echo "LS:"
     ls
@@ -23,7 +23,8 @@ function readFile() {
     echo "CONFIG_PATH: ${CONFIG_PATH}"
 
     # Get the number of dependencies
-    # count=$(yq e '.dependencies | length' $file)
+    count=$(yq e '.dependencies | length' $file)
+    echo "$count"
 
 }
 
