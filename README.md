@@ -4,6 +4,10 @@
 
 To test it, fork this repo. I recommend you to fork the main branch only.
 
+**Dependencies:**
+
+- [docker helper image](https://github.com/la-cc/helm-dependencies-update-helper)
+
 ## Default - The GitHub Way
 
 **_NOTE:_** you need to change the workflow permissions from `Read repository contents and package permissions` to `Read and write permissions` under your repository (Settings -> Actions -> General -> Workflow permissions).
