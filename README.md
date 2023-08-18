@@ -1,5 +1,7 @@
 # WIP!!
 
+**_NOTE:_** this project was inspired by [hckops](https://github.com/hckops/actions)!
+
 To test it, fork this repo. I recommend you to fork the main branch only.
 
 ## Default - The GitHub Way
