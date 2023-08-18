@@ -19,6 +19,10 @@ inputs:
     description: "Skip pull requests if set to true"
     required: false
     default: false
+  github:
+    description: "Skip pull requests if set to true"
+    required: true
+    default: true
 
 runs:
   using: docker
@@ -29,3 +33,4 @@ runs:
     - ${{ inputs.user-name }}
     - ${{ inputs.default-branch }}
     - ${{ inputs.dry-run }}
+    - ${{ inputs.github }}

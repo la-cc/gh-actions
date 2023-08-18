@@ -20,6 +20,73 @@ function readFile() {
 
 }
 
+function checkHelmDependenciesAndUpdateDryRun() {
+
+    # Iterate over the list
+    for ((i = 0; i < $count; i++)); do
+
+        # Name of the dependency like External DNS
+        name=$(yq e ".dependencies[$i].name" $file)
+        # Path to the Chart.yaml file
+        chart_file=$(yq e ".dependencies[$i].source.file" $file)
+        # Path to the version number in the Chart.yaml file like 6.20.0
+        version_path=$(yq e ".dependencies[$i].source.path" $file)
+        # Repository name for the Artifact API
+        repo_name=$(yq e ".dependencies[$i].repository.name" $file)
+        # Repository url for the Artifact API
+        repo_url_path=$(yq e ".dependencies[$i].repository.path" $file)
+
+        # Sanitize the repo name
+        sanitized_name=$(echo $repo_name | cut -d'/' -f1)
+
+        #Change directory to the chart file directory
+        cd $(dirname $chart_file) || exit
+
+        # Read the version from the Chart.yaml file
+        version=$(yq e "$version_path" "$(basename $chart_file)")
+        repo_url=$(yq e "$repo_url_path" "$(basename $chart_file)")
+
+        # Add the repo to helm
+        helm repo add $sanitized_name $repo_url || true
+        helm repo update 1 &>/dev/null || true
+
+        #Get the current version with the Artifact API
+        current_version=$(helm search repo $repo_name --output yaml | yq eval '.[0].version')
+
+        # Output
+        echo "####################### Begin #######################"
+        echo "Name: $name"
+        echo "Version in Chart.yaml: $version"
+        echo "Current Version: $current_version"
+
+        # If there's a difference between the versions
+        if [ "$version" != "$current_version" ]; then
+            echo "There's a difference between the versions."
+
+            # Get values from the repo
+            values=$(helm show values $repo_name --version $version)
+            echo "$values" >values.yaml
+            current_values=$(helm show values $repo_name --version $current_version)
+            echo "$current_values" >current_values.yaml
+
+            diff_result=$(dyff between values.yaml current_values.yaml) || true
+            echo "$diff_result"
+
+            # Delete the temporary files
+            rm values.yaml current_values.yaml
+        else
+            echo "There's no difference between the versions."
+        fi
+
+        # Return to the original directory
+        cd - 1>/dev/null || exit
+
+        echo ""
+        echo "####################### End #######################"
+    done
+
+}
+
 function checkHelmDependenciesAndUpdateGitHub() {
 
     # Iterate over the list
@@ -129,7 +196,14 @@ function checkHelmDependenciesAndUpdateGitHub() {
 function start() {
     # Read the file
     readFile
-    checkHelmDependenciesAndUpdateGitHub
+    # Check if the dependencies are up to date
+    if [ "$DRY_RUN" == "true" ]; then
+        checkHelmDependenciesAndUpdateDryRun
+    fi
+
+    if [ "$GITHUB" == "true" ]; then
+        checkHelmDependenciesAndUpdateGitHub
+    fi
 }
 
 echo "[+] helm-dependencies"
@@ -143,6 +217,7 @@ echo "[*] GIT_USER_EMAIL=${PARAM_GIT_USER_EMAIL}"
 echo "[*] GIT_USER_NAME=${PARAM_GIT_USER_NAME}"
 echo "[*] GIT_DEFAULT_BRANCH=${PARAM_GIT_DEFAULT_BRANCH}"
 echo "[*] DRY_RUN=${PARAM_DRY_RUN}"
+echo "[*] GITHUB=${PARAM_GITHUB}"
 
 gh --version
 gh auth status
