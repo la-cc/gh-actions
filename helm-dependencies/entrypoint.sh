@@ -8,6 +8,7 @@ PARAM_GIT_USER_EMAIL=${2:?"Missing GIT_USER_EMAIL"}
 PARAM_GIT_USER_NAME=${3:?"Missing GIT_USER_NAME"}
 PARAM_GIT_DEFAULT_BRANCH=${4:?"Missing GIT_DEFAULT_BRANCH"}
 PARAM_DRY_RUN=${5:?"Missing DRY_RUN"}
+PARAM_GITHUB_RUN=${6:?"Missing GITHUB_RUN"}
 
 # -------- functions ------------ #
 

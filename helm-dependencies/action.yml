@@ -16,11 +16,11 @@ inputs:
     required: false
     default: "main"
   dry-run:
-    description: "Skip pull requests if set to true"
+    description: "Skip creating branch + pull request if set to true"
     required: false
     default: false
-  github:
-    description: "Skip pull requests if set to true"
+  github-run:
+    description: "Default set to true. Create branch + pull request"
     required: true
     default: true
 
@@ -33,4 +33,4 @@ runs:
     - ${{ inputs.user-name }}
     - ${{ inputs.default-branch }}
     - ${{ inputs.dry-run }}
-    - ${{ inputs.github }}
+    - ${{ inputs.github-run }}

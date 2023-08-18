@@ -31,7 +31,7 @@ jobs:
           user-name: "test-bot"
           default-branch: "main"
           dry-run: false
-          github: true
+          github-run: true
         env:
           # mandatory: not declared explicitly, but used by gh-cli
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
