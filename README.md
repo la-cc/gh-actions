@@ -163,6 +163,8 @@ jobs:
           user-email: "dep-sheriff-bot@users.noreply.github.com"
           user-name: "dep-sheriff-bot"
           default-branch: "main"
+          dry-run: false
+          github-run: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```

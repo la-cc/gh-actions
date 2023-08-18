@@ -145,8 +145,6 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 # Delete the temporary files
                 rm values.yaml current_values.yaml diff_result.txt shift_diff_result.txt
 
-                # fixes: unsafe repository ('/github/workspace' is owned by someone else)
-                git config --global --add safe.directory /github/workspace
                 # Configure git
                 git config --global user.email $PARAM_GIT_USER_EMAIL
                 git config --global user.name $PARAM_GIT_USER_NAME
@@ -170,6 +168,8 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
                     echo "[-] Pull request or update-helm-$sanitized_name-$current_version already exists"
                 else
+                    # fixes: unsafe repository ('/github/workspace' is owned by someone else)
+                    git config --global --add safe.directory /github/workspace
                     # Push the new branch to GitHub
                     git push origin update-helm-$sanitized_name-$current_version
                     # Create a GitHub Pull Request
