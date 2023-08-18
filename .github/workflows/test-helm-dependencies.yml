@@ -27,11 +27,11 @@ jobs:
         uses: ./helm-dependencies
         with:
           config-path: examples/dependencies.yaml
-          user-email: "test-bot@users.noreply.github.com"
-          user-name: "test-bot"
+          user-email: "dep-sheriff-bot@users.noreply.github.com"
+          user-name: "dep-sheriff-bot"
           default-branch: "main"
-          dry-run: true
-          github-run: false
+          dry-run: false
+          github-run: true
         env:
           # mandatory: not declared explicitly, but used by gh-cli
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
