@@ -1,4 +1,4 @@
-# WIP!!
+# Keep Helm Dependencies Up to Date
 
 **_NOTE:_** this project was inspired by [hckops](https://github.com/hckops/actions)!
 
@@ -117,4 +117,52 @@ You will get an output like:
 
 ![Pull Request Text](images/dry-run-0.png)
 
-## Use this action from GitHub Marketplace - TBD
+## Remote - Use this action from this repo
+
+create a `dependencies.yaml` like:
+
+```
+dependencies:
+  - name: "External DNS"
+    source:
+      file: examples/test-helm-chart/external-dns/Chart.yaml
+      path: .dependencies[0].version
+    repository:
+      name: bitnami/external-dns
+      path: .dependencies[0].repository
+```
+
+Create file `.github/workflows/helm-dependencies-update.yml`
+
+```
+name: helm-dependencies-update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/helm-dependencies-update.yml"
+      - "dependencies.yaml"
+
+jobs:
+  test-helm-dependencies:
+    name: "Test: Helm Dependencies Update on Example Chart"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Helm Dependencies
+        uses: la-cc/gh-actions/helm-dependencies@v0.0.1
+        with:
+          config-path: dependencies.yaml
+          user-email: "dep-sheriff-bot@users.noreply.github.com"
+          user-name: "dep-sheriff-bot"
+          default-branch: "main"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
