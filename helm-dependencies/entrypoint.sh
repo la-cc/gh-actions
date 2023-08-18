@@ -156,7 +156,7 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 git fetch --all
 
                 # check if the branch already exists
-                GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version)
+                # GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version)
 
                 # Replace the old version with the new version in the Chart.yaml file using sed
                 sed -i.bak "s/version: $version/version: $current_version/g" "$(basename $chart_file)" && rm "$(basename $chart_file).bak"
@@ -169,18 +169,25 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 # Create a commit with a message indicating the changes
                 git commit -m "Update $name version from $version to $current_version"
 
+                # Push the new branch to GitHub
+                git push origin update-helm-$sanitized_name-$current_version
+                # Create a GitHub Pull Request
+                gh pr create --title "Update $name version from $version to $current_version" --body "$shift_diff_result" --base main --head update-helm-$sanitized_name-$current_version || true
+                # Get back to the source branch
+                git checkout $PARAM_GIT_DEFAULT_BRANCH
+
                 # returns true if the string is not empty
-                if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
-                    echo "[-] Pull request or update-helm-$sanitized_name-$current_version already exists"
-                else
-                    echo "BRANCH: ${GIT_BRANCH_EXISTS}"
-                    # Push the new branch to GitHub
-                    git push origin update-helm-$sanitized_name-$current_version
-                    # Create a GitHub Pull Request
-                    gh pr create --title "Update $name version from $version to $current_version" --body "$shift_diff_result" --base main --head update-helm-$sanitized_name-$current_version || true
-                    # Get back to the source branch
-                    git checkout $PARAM_GIT_DEFAULT_BRANCH
-                fi
+                # if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
+                #     echo "[-] Pull request or update-helm-$sanitized_name-$current_version already exists"
+                # else
+                #     echo "BRANCH: ${GIT_BRANCH_EXISTS}"
+                #     # Push the new branch to GitHub
+                #     git push origin update-helm-$sanitized_name-$current_version
+                #     # Create a GitHub Pull Request
+                #     gh pr create --title "Update $name version from $version to $current_version" --body "$shift_diff_result" --base main --head update-helm-$sanitized_name-$current_version || true
+                #     # Get back to the source branch
+                #     git checkout $PARAM_GIT_DEFAULT_BRANCH
+                # fi
 
             else
                 echo "Branch already exists. Checking out to the existing branch." || true
