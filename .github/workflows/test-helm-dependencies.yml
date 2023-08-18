@@ -17,7 +17,7 @@ on:
 
 jobs:
   test-helm-dependencies:
-    name: Test
+    name: Test Example Chart
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
