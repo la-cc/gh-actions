@@ -159,7 +159,7 @@ function checkHelmDependenciesAndUpdateGitHub() {
 
                 # check if the branch already exists
                 GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version)
-                echo ${GIT_BRANCH_EXISTS}
+                echo "#######--------BRANCH: ${GIT_BRANCH_EXISTS}"
 
                 # Push the new branch to GitHub
                 # Replace the old version with the new version in the Chart.yaml file using sed
