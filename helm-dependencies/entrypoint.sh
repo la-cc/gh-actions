@@ -155,6 +155,9 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 # fetch existing remote branches
                 git fetch --all
 
+                # check if the branch already exists
+                GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version)
+
                 # Replace the old version with the new version in the Chart.yaml file using sed
                 sed -i.bak "s/version: $version/version: $current_version/g" "$(basename $chart_file)" && rm "$(basename $chart_file).bak"
 
@@ -166,7 +169,6 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 # Create a commit with a message indicating the changes
                 git commit -m "Update $name version from $version to $current_version"
 
-                GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version)
                 # returns true if the string is not empty
                 if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
                     echo "[-] Pull request or update-helm-$sanitized_name-$current_version already exists"
