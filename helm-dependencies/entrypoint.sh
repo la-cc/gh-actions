@@ -158,7 +158,7 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 rm values.yaml current_values.yaml diff_result.txt shift_diff_result.txt
 
                 # check if the branch already exists
-                GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version)
+                GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version) || true
                 echo "#######--------BRANCH: ${GIT_BRANCH_EXISTS}"
 
                 # Push the new branch to GitHub
