@@ -30,8 +30,8 @@ jobs:
           user-email: "test-bot@users.noreply.github.com"
           user-name: "test-bot"
           default-branch: "main"
-          dry-run: false
-          github-run: true
+          dry-run: true
+          github-run: false
         env:
           # mandatory: not declared explicitly, but used by gh-cli
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
