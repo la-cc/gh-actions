@@ -21,6 +21,18 @@ function readFile() {
 
 }
 
+function initGit {
+    # fixes: unsafe repository ('/github/workspace' is owned by someone else)
+    git config --global --add safe.directory /github/workspace
+
+    # mandatory configs
+    git config user.email $PARAM_GIT_USER_EMAIL
+    git config user.name $PARAM_GIT_USER_NAME
+
+    # fetch existing remote branches
+    git fetch --all
+}
+
 function checkHelmDependenciesAndUpdateDryRun() {
 
     # Iterate over the list
@@ -145,18 +157,12 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 # Delete the temporary files
                 rm values.yaml current_values.yaml diff_result.txt shift_diff_result.txt
 
-                # fixes: unsafe repository ('/github/workspace' is owned by someone else)
-                git config --global --add safe.directory /github/workspace
-
-                # Configure git
-                git config --global user.email $PARAM_GIT_USER_EMAIL
-                git config --global user.name $PARAM_GIT_USER_NAME
-
                 # fetch existing remote branches
                 git fetch --all
 
                 # check if the branch already exists
-                # GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version)
+                GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version)
+                echo "BRANCH: ${GIT_BRANCH_EXISTS}"
 
                 # Replace the old version with the new version in the Chart.yaml file using sed
                 sed -i.bak "s/version: $version/version: $current_version/g" "$(basename $chart_file)" && rm "$(basename $chart_file).bak"
@@ -214,6 +220,7 @@ function start() {
     fi
 
     if [ "${PARAM_GITHUB_RUN}" == "true" ]; then
+        initGit
         checkHelmDependenciesAndUpdateGitHub
     fi
 }
