@@ -198,11 +198,11 @@ function start() {
     # Read the file
     readFile
     # Check if the dependencies are up to date
-    if [ "$DRY_RUN" == "true" ]; then
+    if [ "${PARAM_DRY_RUN}" == "true" ]; then
         checkHelmDependenciesAndUpdateDryRun
     fi
 
-    if [ "$GITHUB" == "true" ]; then
+    if [ "${PARAM_GITHUB_RUN}" == "true" ]; then
         checkHelmDependenciesAndUpdateGitHub
     fi
 }
@@ -218,7 +218,7 @@ echo "[*] GIT_USER_EMAIL=${PARAM_GIT_USER_EMAIL}"
 echo "[*] GIT_USER_NAME=${PARAM_GIT_USER_NAME}"
 echo "[*] GIT_DEFAULT_BRANCH=${PARAM_GIT_DEFAULT_BRANCH}"
 echo "[*] DRY_RUN=${PARAM_DRY_RUN}"
-echo "[*] GITHUB=${PARAM_GITHUB_RUN}"
+echo "[*] GITHUB_RUN=${PARAM_GITHUB_RUN}"
 
 gh --version
 gh auth status
