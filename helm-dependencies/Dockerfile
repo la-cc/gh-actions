@@ -1,4 +1,4 @@
-FROM ghcr.io/la-cc/helm-dependencies-update-helper:0.0.8
+FROM ghcr.io/la-cc/gh-actions-helm-dependencies-update:v0.0.3
 
 # https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
 ENV GITHUB_TOKEN=${GITHUB_TOKEN}
