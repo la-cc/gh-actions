@@ -97,14 +97,18 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 # Create a commit with a message indicating the changes
                 git commit -m "Update $name version from $version to $current_version"
 
-                # Push the new branch to GitHub
-                git push origin update-helm-$sanitized_name-$current_version
-
-                # Create a GitHub Pull Request
-                gh pr create --title "Update $name version from $version to $current_version" --body "$shift_diff_result" --base main --head update-helm-$sanitized_name-$current_version || true
-
-                # Get back to the source branch
-                git checkout $PARAM_GIT_DEFAULT_BRANCH
+                GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version)
+                # returns true if the string is not empty
+                if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
+                    echo "[-] Pull request or update-helm-$sanitized_name-$current_version already exists"
+                else
+                    # Push the new branch to GitHub
+                    git push origin update-helm-$sanitized_name-$current_version
+                    # Create a GitHub Pull Request
+                    gh pr create --title "Update $name version from $version to $current_version" --body "$shift_diff_result" --base main --head update-helm-$sanitized_name-$current_version || true
+                    # Get back to the source branch
+                    git checkout $PARAM_GIT_DEFAULT_BRANCH
+                fi
 
             else
                 echo "Branch already exists. Checking out to the existing branch." || true
