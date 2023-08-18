@@ -157,10 +157,6 @@ function checkHelmDependenciesAndUpdateGitHub() {
                 # Delete the temporary files
                 rm values.yaml current_values.yaml diff_result.txt shift_diff_result.txt
 
-                # check if the branch already exists
-                GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$current_version)
-
-                echo "#########----------- BRANCH: ${GIT_BRANCH_EXISTS}"
                 # Push the new branch to GitHub
                 # Replace the old version with the new version in the Chart.yaml file using sed
                 sed -i.bak "s/version: $version/version: $current_version/g" "$(basename $chart_file)" && rm "$(basename $chart_file).bak"
