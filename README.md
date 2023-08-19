@@ -4,10 +4,6 @@
 
 To test it, fork this repo. I recommend you to fork the main branch only.
 
-**Dependencies:**
-
-- [docker helper image](https://github.com/la-cc/helm-dependencies-update-helper)
-
 ## Default - The GitHub Way
 
 **_NOTE:_** you need to change the workflow permissions from `Read repository contents and package permissions` to `Read and write permissions` under your repository (Settings -> Actions -> General -> Workflow permissions).
@@ -20,10 +16,8 @@ name: test-helm-dependencies
 on:
   # enable manual trigger
   workflow_dispatch:
-  # https://cron.help
   schedule:
-    # every 12 hours
-    - cron: "0 0,12 * * *"
+    - cron: "0 0 * * *"
   push:
     branches:
       - main
@@ -50,11 +44,7 @@ jobs:
           dry-run: false
           github-run: true
         env:
-          # mandatory: not declared explicitly, but used by gh-cli
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # not required: declared only for documentation because they are automatically added at runtime
-          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
-          GITHUB_SHA: ${{ env.GITHUB_SHA }}
 ```
 
 The Action will be triggered on push to main or every 12 hours as cronjob.
@@ -74,10 +64,8 @@ name: test-helm-dependencies
 on:
   # enable manual trigger
   workflow_dispatch:
-  # https://cron.help
   schedule:
-    # every 12 hours
-    - cron: "0 0,12 * * *"
+    - cron: "0 0 * * *"
   push:
     branches:
       - main
@@ -104,11 +92,7 @@ jobs:
           dry-run: true
           github-run: false
         env:
-          # mandatory: not declared explicitly, but used by gh-cli
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # not required: declared only for documentation because they are automatically added at runtime
-          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
-          GITHUB_SHA: ${{ env.GITHUB_SHA }}
 ```
 
 The Action will be triggered on push to main or every 12 hours as cronjob.
@@ -157,7 +141,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Helm Dependencies
-        uses: la-cc/gh-actions/helm-dependencies@v0.0.1
+        uses: la-cc/gh-actions/helm-dependencies@v0.0.3-1
         with:
           config-path: dependencies.yaml
           user-email: "dep-sheriff-bot@users.noreply.github.com"
