@@ -246,6 +246,7 @@ function checkHelmDependencies() {
         echo "Version in Chart.yaml: $version"
         echo "Latest Version in Repository: $latest_version"
 
+        initGit
         diffBetweenVersions
 
         # Return to the original directory
@@ -256,14 +257,16 @@ function checkHelmDependencies() {
 function diffBetweenVersions() {
     if [ "$version" != "$latest_version" ]; then
         echo "There is a difference between the versions."
-        initGit
+
         tplBranchName=update-helm-$sanitized_name-$latest_version
 
-        if [[ -n $(git branch --list $tplBranchName) ]]; then
+        # check if the branch already exists
+        GIT_BRANCH_EXISTS=$(git show-ref $tplBranchName) || true
+
+        # returns true if the string is not empty
+        if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
             echo "[-] Pull request or branch $tplBranchName already exists"
         else
-
-            echo "------------- Debug --------------"
             tempDir=$(mktemp -d)
 
             diffValuesFile="${tempDir}/diff_value.yaml"
@@ -283,8 +286,7 @@ function diffBetweenVersions() {
             if [ "$PARAM_DRY_RUN" == "true" ]; then
                 dryRun
             elif [ "$PARAM_GITHUB_RUN" == "true" ]; then
-                echo "gitHubPR"
-                #gitHubPR
+                gitHubPR
             fi
 
             rm -rf $tempDir
@@ -317,19 +319,14 @@ function gitHubPR() {
     updateVersionInChartFile
     createCommitAndPushBranch
 
-    # returns true if the string is not empty
-    if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
-        echo "[-] Pull request or branch $tplBranchName already exists"
-    else
-        gh pr create \
-            --title "Update $name version from $version to $latest_version" \
-            --body "$shift_diff_result" \
-            --base $PARAM_GIT_DEFAULT_BRANCH \
-            --head $tplBranchName || true
+    gh pr create \
+        --title "Update $name version from $version to $latest_version" \
+        --body "$shift_diff_result" \
+        --base $PARAM_GIT_DEFAULT_BRANCH \
+        --head $tplBranchName || true
 
-        # Get back to the source branch
-        git checkout $PARAM_GIT_DEFAULT_BRANCH
-    fi
+    # Get back to the source branch
+    git checkout $PARAM_GIT_DEFAULT_BRANCH
 
 }
 
