@@ -90,7 +90,7 @@ function diffBetweenVersions() {
         tplBranchName=update-helm-$sanitized_name-$latest_version
 
         # returns true if the string is not empty
-        if [[ -n $(git show-ref $tplBranchName) ]]; then
+        if [[ -n $(git show-ref $tplBranchName) ]] && [[ "$PARAM_DRY_RUN" != "true" ]]; then
             echo "[-] Pull request or branch $tplBranchName already exists"
         else
             tempDir=$(mktemp -d)
