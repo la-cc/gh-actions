@@ -27,7 +27,7 @@ function initGit {
     git config user.name $PARAM_GIT_USER_NAME
 
     # fetch existing remote branches
-    git fetch --all
+    git fetch origin --prune
 }
 
 function readDependenciesFromFile() {
