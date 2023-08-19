@@ -309,16 +309,6 @@ function createCommitAndPushBranch() {
     # Push the new branch to GitHub
     git push origin $tplBranchName
 
-    #check if the branch already exists
-    GIT_BRANCH_EXISTS=$(git show-ref $tplBranchName) || true
-
-    # returns true if the string is not empty
-    if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
-        echo "[-] Pull request or branch $tplBranchName already exists"
-    else
-        # Get back to the source branch
-        git checkout $PARAM_GIT_DEFAULT_BRANCH
-    fi
 }
 
 function gitHubPR() {
@@ -326,20 +316,21 @@ function gitHubPR() {
     createCommitAndPushBranch
 
     GIT_BRANCH_EXISTS=$(git show-ref $tplBranchName) || true
+    echo "BRANCH_EXISTS: $GIT_BRANCH_EXISTS"
 
-    # returns true if the string is not empty
-    if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
-        echo "[-] Pull request or branch $tplBranchName already exists"
-    else
-        gh pr create \
-            --title "Update $name version from $version to $latest_version" \
-            --body "$shift_diff_result" \
-            --base $PARAM_GIT_DEFAULT_BRANCH \
-            --head $tplBranchName || true
+    # # returns true if the string is not empty
+    # if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
+    #     echo "[-] Pull request or branch $tplBranchName already exists"
+    # else
+    #     gh pr create \
+    #         --title "Update $name version from $version to $latest_version" \
+    #         --body "$shift_diff_result" \
+    #         --base $PARAM_GIT_DEFAULT_BRANCH \
+    #         --head $tplBranchName || true
 
-        # Get back to the source branch
-        git checkout $PARAM_GIT_DEFAULT_BRANCH
-    fi
+    #     # Get back to the source branch
+    #     git checkout $PARAM_GIT_DEFAULT_BRANCH
+    # fi
 
 }
 
