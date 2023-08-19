@@ -280,7 +280,7 @@ function diffBetweenVersions() {
                 dryRun
             elif [ "$PARAM_GITHUB_RUN" == "true" ]; then
                 initGit
-                gitHub
+                gitHubPR
             fi
 
             rm -rf $tempDir
@@ -308,20 +308,39 @@ function createCommitAndPushBranch() {
 
     # Push the new branch to GitHub
     git push origin $tplBranchName
+
+    #check if the branch already exists
+    GIT_BRANCH_EXISTS=$(git show-ref $tplBranchName) || true
+
+    # returns true if the string is not empty
+    if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
+        echo "[-] Pull request or branch $tplBranchName already exists"
+    else
+        # Get back to the source branch
+        git checkout $PARAM_GIT_DEFAULT_BRANCH
+    fi
 }
 
-function gitHub() {
+function gitHubPR() {
     updateVersionInChartFile
     createCommitAndPushBranch
 
-    gh pr create \
-        --title "Update $name version from $version to $latest_version" \
-        --body "$shift_diff_result" \
-        --base $BRANCH \
-        --head $tplBranchName || true
+    GIT_BRANCH_EXISTS=$(git show-ref $tplBranchName) || true
 
-    # Get back to the source branch
-    git checkout $BRANCH
+    # returns true if the string is not empty
+    if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
+        echo "[-] Pull request or branch $tplBranchName already exists"
+    else
+        gh pr create \
+            --title "Update $name version from $version to $latest_version" \
+            --body "$shift_diff_result" \
+            --base $PARAM_GIT_DEFAULT_BRANCH \
+            --head $tplBranchName || true
+
+        # Get back to the source branch
+        git checkout $PARAM_GIT_DEFAULT_BRANCH
+    fi
+
 }
 
 function dryRun() {
