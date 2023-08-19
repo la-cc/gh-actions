@@ -90,10 +90,10 @@ function diffBetweenVersions() {
         tplBranchName=update-helm-$sanitized_name-$latest_version
 
         # check if the branch already exists
-        GIT_BRANCH_EXISTS=$(git show-ref $tplBranchName) || true
+        #GIT_BRANCH_EXISTS=$(git show-ref $tplBranchName) || true
 
         # returns true if the string is not empty
-        if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
+        if [[ -n $(git show-ref $tplBranchName) ]]; then
             echo "[-] Pull request or branch $tplBranchName already exists"
         else
             tempDir=$(mktemp -d)
@@ -120,8 +120,9 @@ function diffBetweenVersions() {
 
             rm -rf $tempDir
         fi
+    else
+        echo "There's no difference between the versions."
     fi
-    echo "There's no difference between the versions."
 }
 
 function updateVersionInChartFile() {
