@@ -12,17 +12,11 @@ PARAM_GITHUB_RUN=${6:?"Missing GITHUB_RUN"}
 
 # -------- functions ------------ #
 
-function readFile() {
-    # Read the file
-    file="${PARAM_CONFIG_PATH}" # use absolute path
+# Set path to the config file
+file="${PARAM_CONFIG_PATH}" # use absolute path
 
-    # Load dependencies in memory
-    dependencies=$(yq e . $file)
-
-    # Get the number of dependencies
-    count=$(yq e '.dependencies | length' $file)
-
-}
+# Load dependencies in memory
+dependencies=$(yq e . $file)
 
 function initGit {
     # fixes: unsafe repository ('/github/workspace' is owned by someone else)
@@ -36,174 +30,180 @@ function initGit {
     git fetch --all
 }
 
-function checkHelmDependenciesAndUpdateDryRun() {
+# function checkHelmDependenciesAndUpdateDryRun() {
 
-    # Iterate over the list
-    for ((i = 0; i < $count; i++)); do
+#     # Iterate over the list
+#     for ((i = 0; i < $count; i++)); do
 
-        dependencyPath=".dependencies[$(echo "${dependencies}" | yq e ".dependencies[$i].arrayPosition // 0")]"
-        chartSourcePath=$(echo "${dependencies}" | yq e ".dependencies[$i].sourcePath")
+#         dependencyPath=".dependencies[$(echo "${dependencies}" | yq e ".dependencies[$i].arrayPosition // 0")]"
+#         chartSourcePath=$(echo "${dependencies}" | yq e ".dependencies[$i].sourcePath")
 
-        # Name of the dependency like External DNS
-        name=$(echo "${dependencies}" | yq e ".dependencies[$i].name")
-        # Path to the Chart.yaml file
-        chart_file=$chartSourcePath/Chart.yaml
-        # Path to the version number in the Chart.yaml file like 6.20.0
-        version_path="${dependencyPath}.version"
-        # Repository name for the Artifact API
-        repo_name=$(echo "${dependencies}" | yq e ".dependencies[$i].repositoryName")
-        # Repository url for the Artifact API
-        repo_url_path="${dependencyPath}.repository"
+#         # Name of the dependency like External DNS
+#         name=$(echo "${dependencies}" | yq e ".dependencies[$i].name")
+#         # Path to the Chart.yaml file
+#         chart_file=$chartSourcePath/Chart.yaml
+#         # Path to the version number in the Chart.yaml file like 6.20.0
+#         version_path="${dependencyPath}.version"
+#         # Repository name for the Artifact API
+#         repo_name=$(echo "${dependencies}" | yq e ".dependencies[$i].repositoryName")
+#         # Repository url for the Artifact API
+#         repo_url_path="${dependencyPath}.repository"
 
-        # Sanitize the repo name
-        sanitized_name=$(echo $repo_name | cut -d'/' -f1)
+#         # Sanitize the repo name
+#         sanitized_name=$(echo $repo_name | cut -d'/' -f1)
 
-        #Change directory to the chart file directory
-        pushd $chartSourcePath >/dev/null
+#         #Change directory to the chart file directory
+#         pushd $chartSourcePath >/dev/null
 
-        # Read the version from the Chart.yaml file
-        version=$(yq e "$version_path" "$(basename $chart_file)")
-        repo_url=$(yq e "$repo_url_path" "$(basename $chart_file)")
+#         # Read the version from the Chart.yaml file
+#         version=$(yq e "$version_path" "$(basename $chart_file)")
+#         repo_url=$(yq e "$repo_url_path" "$(basename $chart_file)")
 
-        # Add the repo to helm
-        helm repo add $sanitized_name $repo_url || true
-        helm repo update 1 &>/dev/null || true
+#         # Add the repo to helm
+#         helm repo add $sanitized_name $repo_url || true
+#         helm repo update 1 &>/dev/null || true
 
-        #Get the current version with the Artifact API
-        latest_version=$(helm search repo $repo_name --output yaml | yq eval '.[0].version')
+#         #Get the current version with the Artifact API
+#         latest_version=$(helm search repo $repo_name --output yaml | yq eval '.[0].version')
 
-        # Output
-        echo "####################### Begin #######################"
-        echo "Name: $name"
-        echo "Version in Chart.yaml: $version"
-        echo "Current Version: $latest_version"
+#         # Output
+#         echo "####################### Begin #######################"
+#         echo "Name: $name"
+#         echo "Version in Chart.yaml: $version"
+#         echo "Current Version: $latest_version"
 
-        # If there's a difference between the versions
-        if [ "$version" != "$latest_version" ]; then
-            echo "There's a difference between the versions."
+#         # If there's a difference between the versions
+#         if [ "$version" != "$latest_version" ]; then
+#             echo "There's a difference between the versions."
 
-            # Get values from the repo
-            values=$(helm show values $repo_name --version $version)
-            echo "$values" >values.yaml
-            current_values=$(helm show values $repo_name --version $latest_version)
-            echo "$current_values" >current_values.yaml
+#             # Get values from the repo
+#             values=$(helm show values $repo_name --version $version)
+#             echo "$values" >values.yaml
+#             current_values=$(helm show values $repo_name --version $latest_version)
+#             echo "$current_values" >current_values.yaml
 
-            diff_result=$(dyff between values.yaml current_values.yaml) || true
-            echo "$diff_result"
+#             diff_result=$(dyff between values.yaml current_values.yaml) || true
+#             echo "$diff_result"
 
-            # Delete the temporary files
-            rm values.yaml current_values.yaml
-        else
-            echo "There's no difference between the versions."
-        fi
+#             # Delete the temporary files
+#             rm values.yaml current_values.yaml
+#         else
+#             echo "There's no difference between the versions."
+#         fi
 
-        # Return to the original directory
-        popd >/dev/null
+#         # Return to the original directory
+#         popd >/dev/null
 
-        echo ""
-        echo "####################### End #######################"
-    done
+#         echo ""
+#         echo "####################### End #######################"
+#     done
 
-}
+# }
 
-function checkHelmDependenciesAndUpdateGitHub() {
+# function checkHelmDependenciesAndUpdateGitHub() {
 
-    # Iterate over the list
-    for ((i = 0; i < $count; i++)); do
-        dependencyPath=".dependencies[$(echo "${dependencies}" | yq e ".dependencies[$i].arrayPosition // 0")]"
-        chartSourcePath=$(echo "${dependencies}" | yq e ".dependencies[$i].sourcePath")
+#     # Iterate over the list
+#     for ((i = 0; i < $count; i++)); do
+#         dependencyPath=".dependencies[$(echo "${dependencies}" | yq e ".dependencies[$i].arrayPosition // 0")]"
+#         chartSourcePath=$(echo "${dependencies}" | yq e ".dependencies[$i].sourcePath")
 
-        # Name of the dependency like External DNS
-        name=$(echo "${dependencies}" | yq e ".dependencies[$i].name")
-        # Path to the Chart.yaml file
-        chart_file=$chartSourcePath/Chart.yaml
-        # Path to the version number in the Chart.yaml file like 6.20.0
-        version_path="${dependencyPath}.version"
-        # Repository name for the Artifact API
-        repo_name=$(echo "${dependencies}" | yq e ".dependencies[$i].repositoryName")
-        # Repository url for the Artifact API
-        repo_url_path="${dependencyPath}.repository"
+#         # Name of the dependency like External DNS
+#         name=$(echo "${dependencies}" | yq e ".dependencies[$i].name")
+#         # Path to the Chart.yaml file
+#         chart_file=$chartSourcePath/Chart.yaml
+#         # Path to the version number in the Chart.yaml file like 6.20.0
+#         version_path="${dependencyPath}.version"
+#         # Repository name for the Artifact API
+#         repo_name=$(echo "${dependencies}" | yq e ".dependencies[$i].repositoryName")
+#         # Repository url for the Artifact API
+#         repo_url_path="${dependencyPath}.repository"
 
-        # Sanitize the repo name
-        sanitized_name=$(echo $repo_name | cut -d'/' -f1)
+#         # Sanitize the repo name
+#         sanitized_name=$(echo $repo_name | cut -d'/' -f1)
 
-        #Change directory to the chart file directory
-        pushd $chartSourcePath >/dev/null
+#         #Change directory to the chart file directory
+#         pushd $chartSourcePath >/dev/null
 
-        # Read the version from the Chart.yaml file
-        version=$(yq e "$version_path" "$(basename $chart_file)")
-        repo_url=$(yq e "$repo_url_path" "$(basename $chart_file)")
+#         # Read the version from the Chart.yaml file
+#         version=$(yq e "$version_path" "$(basename $chart_file)")
+#         repo_url=$(yq e "$repo_url_path" "$(basename $chart_file)")
 
-        # Add the repo to helm
-        helm repo add $sanitized_name $repo_url || true
-        helm repo update 1 &>/dev/null || true
+#         # Add the repo to helm
+#         helm repo add $sanitized_name $repo_url || true
+#         helm repo update 1 &>/dev/null || true
 
-        #Get the current version with the Artifact API
-        latest_version=$(helm search repo $repo_name --output yaml | yq eval '.[0].version')
+#         #Get the current version with the Artifact API
+#         latest_version=$(helm search repo $repo_name --output yaml | yq eval '.[0].version')
 
-        # Output
-        echo "Name: $name"
-        echo "Version in Chart.yaml: $version"
-        echo "Current Version: $latest_version"
+#         # Output
+#         echo "Name: $name"
+#         echo "Version in Chart.yaml: $version"
+#         echo "Current Version: $latest_version"
 
-        # If there's a difference between the versions
-        if [ "$version" != "$latest_version" ]; then
-            if [ ! $(git branch --list update-helm-$sanitized_name-$latest_version) ]; then
-                echo "There's a difference between the versions."
+#         # If there's a difference between the versions
+#         if [ "$version" != "$latest_version" ]; then
+#             if [ ! $(git branch --list update-helm-$sanitized_name-$latest_version) ]; then
+#                 echo "There's a difference between the versions."
 
-                # Get values from the repo
-                values=$(helm show values $repo_name --version $version)
-                echo "$values" >values.yaml
-                current_values=$(helm show values $repo_name --version $latest_version)
-                echo "$current_values" >current_values.yaml
+#                 # Get values from the repo
+#                 values=$(helm show values $repo_name --version $version)
+#                 echo "$values" >values.yaml
+#                 current_values=$(helm show values $repo_name --version $latest_version)
+#                 echo "$current_values" >current_values.yaml
 
-                diff_result=$(dyff between values.yaml current_values.yaml) || true
-                # Output differences
-                echo "$diff_result" >diff_result.txt
-                awk '{ printf "\t%s\n", $0 }' diff_result.txt >shift_diff_result.txt
-                shift_diff_result=$(cat shift_diff_result.txt)
+#                 diff_result=$(dyff between values.yaml current_values.yaml) || true
+#                 # Output differences
+#                 echo "$diff_result" >diff_result.txt
+#                 awk '{ printf "\t%s\n", $0 }' diff_result.txt >shift_diff_result.txt
+#                 shift_diff_result=$(cat shift_diff_result.txt)
 
-                # Delete the temporary files
-                rm values.yaml current_values.yaml diff_result.txt shift_diff_result.txt
+#                 # Delete the temporary files
+#                 rm values.yaml current_values.yaml diff_result.txt shift_diff_result.txt
 
-                # check if the branch already exists
-                GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$latest_version) || true
+#                 # check if the branch already exists
+#                 GIT_BRANCH_EXISTS=$(git show-ref update-helm-$sanitized_name-$latest_version) || true
 
-                # returns true if the string is not empty
-                if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
-                    echo "[-] Pull request or branch update-helm-$sanitized_name-$latest_version already exists"
-                else
-                    # Replace the old version with the new version in the Chart.yaml file using sed
-                    sed -i.bak "s/version: $version/version: $latest_version/g" "$(basename $chart_file)" && rm "$(basename $chart_file).bak"
+#                 # returns true if the string is not empty
+#                 if [[ -n ${GIT_BRANCH_EXISTS} ]]; then
+#                     echo "[-] Pull request or branch update-helm-$sanitized_name-$latest_version already exists"
+#                 else
+#                     # Replace the old version with the new version in the Chart.yaml file using sed
+#                     sed -i.bak "s/version: $version/version: $latest_version/g" "$(basename $chart_file)" && rm "$(basename $chart_file).bak"
 
-                    # Create a new branch for this change
-                    git checkout -b update-helm-$sanitized_name-$latest_version
-                    # Add the changes to the staging area
-                    git add "$(basename $chart_file)"
+#                     # Create a new branch for this change
+#                     git checkout -b update-helm-$sanitized_name-$latest_version
+#                     # Add the changes to the staging area
+#                     git add "$(basename $chart_file)"
 
-                    # Create a commit with a message indicating the changes
-                    git commit -m "Update $name version from $version to $latest_version"
-                    # Push the new branch to GitHub
-                    git push origin update-helm-$sanitized_name-$latest_version
-                    # Create a GitHub Pull Request
-                    gh pr create --title "Update $name version from $version to $latest_version" --body "$shift_diff_result" --base main --head update-helm-$sanitized_name-$latest_version || true
-                    # Get back to the source branch
-                    git checkout $PARAM_GIT_DEFAULT_BRANCH
-                fi
+#                     # Create a commit with a message indicating the changes
+#                     git commit -m "Update $name version from $version to $latest_version"
+#                     # Push the new branch to GitHub
+#                     git push origin update-helm-$sanitized_name-$latest_version
+#                     # Create a GitHub Pull Request
+#                     gh pr create --title "Update $name version from $version to $latest_version" --body "$shift_diff_result" --base main --head update-helm-$sanitized_name-$latest_version || true
+#                     # Get back to the source branch
+#                     git checkout $PARAM_GIT_DEFAULT_BRANCH
+#                 fi
 
-            else
-                echo "Branch already exists. Checking out to the existing branch." || true
-            fi
+#             else
+#                 echo "Branch already exists. Checking out to the existing branch." || true
+#             fi
 
-        else
-            echo "There's no difference between the versions."
-        fi
+#         else
+#             echo "There's no difference between the versions."
+#         fi
 
-        # Return to the original directory
-        popd >/dev/null
+#         # Return to the original directory
+#         popd >/dev/null
 
-        echo ""
-    done
+#         echo ""
+#     done
+
+# }
+
+function readDependenciesFromFile() {
+    # Get the number of dependencies
+    count=$(echo "${dependencies}" | yq e '.dependencies | length')
 
 }
 
@@ -279,6 +279,7 @@ function diffBetweenVersions() {
             if [ "$PARAM_DRY_RUN" == "true" ]; then
                 dryRun
             elif [ "$PARAM_GITHUB_RUN" == "true" ]; then
+                initGit
                 gitHub
             fi
 
@@ -309,11 +310,6 @@ function createCommitAndPushBranch() {
     git push origin $tplBranchName
 }
 
-function withOutPR() {
-    updateVersionInChartFile
-    createCommitAndPushBranch
-}
-
 function gitHub() {
     updateVersionInChartFile
     createCommitAndPushBranch
@@ -333,17 +329,22 @@ function dryRun() {
 }
 
 function start() {
-    # Read the file
-    readFile
-    # Check if the dependencies are up to date
-    if [ "${PARAM_DRY_RUN}" == "true" ]; then
-        checkHelmDependenciesAndUpdateDryRun
-    fi
 
-    if [ "${PARAM_GITHUB_RUN}" == "true" ]; then
-        initGit
-        checkHelmDependenciesAndUpdateGitHub
-    fi
+    # Read the file
+    readDependenciesFromFile
+    # Check if the dependencies are up to date
+    checkHelmDependencies
+    # Read the file
+    #readFile
+    # Check if the dependencies are up to date
+    # if [ "${PARAM_DRY_RUN}" == "true" ]; then
+    #     checkHelmDependenciesAndUpdateDryRun
+    # fi
+
+    # if [ "${PARAM_GITHUB_RUN}" == "true" ]; then
+    #     initGit
+    #     checkHelmDependenciesAndUpdateGitHub
+    # fi
 }
 
 echo "[+] helm-dependencies"
