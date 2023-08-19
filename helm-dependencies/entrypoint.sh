@@ -283,7 +283,8 @@ function diffBetweenVersions() {
             if [ "$PARAM_DRY_RUN" == "true" ]; then
                 dryRun
             elif [ "$PARAM_GITHUB_RUN" == "true" ]; then
-                gitHubPR
+                echo "gitHubPR"
+                #gitHubPR
             fi
 
             rm -rf $tempDir
