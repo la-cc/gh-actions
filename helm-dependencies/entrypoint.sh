@@ -256,12 +256,14 @@ function checkHelmDependencies() {
 function diffBetweenVersions() {
     if [ "$version" != "$latest_version" ]; then
         echo "There is a difference between the versions."
+        initGit
         tplBranchName=update-helm-$sanitized_name-$latest_version
 
         if [[ -n $(git branch --list $tplBranchName) ]]; then
             echo "[-] Pull request or branch $tplBranchName already exists"
         else
 
+            echo "------------- Debug --------------"
             tempDir=$(mktemp -d)
 
             diffValuesFile="${tempDir}/diff_value.yaml"
@@ -281,7 +283,6 @@ function diffBetweenVersions() {
             if [ "$PARAM_DRY_RUN" == "true" ]; then
                 dryRun
             elif [ "$PARAM_GITHUB_RUN" == "true" ]; then
-                initGit
                 gitHubPR
             fi
 
