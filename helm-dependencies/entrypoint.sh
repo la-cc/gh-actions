@@ -128,6 +128,10 @@ function updateVersionInChartFile() {
 }
 
 function createCommitAndPushBranch() {
+
+    # Set the default branch
+    git checkout $PARAM_GIT_DEFAULT_BRANCH
+
     # Create a new branch for this change
     git checkout -b $tplBranchName
 
