@@ -30,6 +30,12 @@ function initGit {
     git fetch origin --prune
 }
 
+function setSourceBranch() {
+
+    # Set the source branch
+    git checkout $PARAM_GIT_DEFAULT_BRANCH
+}
+
 function readDependenciesFromFile() {
     # Get the number of dependencies
     count=$(echo "${dependencies}" | yq e '.dependencies | length')
@@ -44,6 +50,8 @@ function checkHelmDependencies() {
 
         # Name of the dependency like External DNS
         name=$(echo "${dependencies}" | yq e ".dependencies[$i].name")
+        # Lowercase name of the dependency like external-dns
+        lower_name=$(echo $name | tr '[:upper:]' '[:lower:]')
         # Path to the Chart.yaml file
         chart_file=$chartSourcePath/Chart.yaml
         # Path to the version number in the Chart.yaml file like 6.20.0
@@ -87,7 +95,7 @@ function diffBetweenVersions() {
     if [ "$version" != "$latest_version" ]; then
         echo "There is a difference between the versions."
 
-        tplBranchName=update-helm-$sanitized_name-$latest_version
+        tplBranchName=update-helm-$sanitized_name-$lower_name-from-$version-to-$latest_version
 
         # returns true if the string is not empty
         if [[ -n $(git show-ref $tplBranchName) ]] && [[ "$PARAM_DRY_RUN" != "true" ]]; then
@@ -129,9 +137,6 @@ function updateVersionInChartFile() {
 
 function createCommitAndPushBranch() {
 
-    # Set the default branch
-    git checkout $PARAM_GIT_DEFAULT_BRANCH
-
     # Create a new branch for this change
     git checkout -b $tplBranchName
 
@@ -167,6 +172,8 @@ function dryRun() {
 
 function start() {
 
+    # Set to the source branch
+    setSourceBranch
     # Read the file
     readDependenciesFromFile
     # Check if the dependencies are up to date
