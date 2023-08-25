@@ -173,7 +173,7 @@ function dryRun() {
 function start() {
 
     # Set to the source branch
-    setSourceBranch
+    #setSourceBranch
     # Read the file
     readDependenciesFromFile
     # Check if the dependencies are up to date
