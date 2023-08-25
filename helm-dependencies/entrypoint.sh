@@ -89,7 +89,7 @@ function diffBetweenVersions() {
     if [ "$version" != "$latest_version" ]; then
         echo "There is a difference between the versions."
 
-        tplBranchName=update-helm-$sanitized_name-$lower_name-$latest_version
+        tplBranchName=update-helm-$sanitized_name-from-$version-to-$latest_version
 
         # returns true if the string is not empty
         if [[ -n $(git show-ref $tplBranchName) ]] && [[ "$PARAM_DRY_RUN" != "true" ]]; then
