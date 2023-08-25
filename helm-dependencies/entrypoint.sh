@@ -56,8 +56,8 @@ function checkHelmDependencies() {
         repo_url_path="${dependencyPath}.repository"
 
         # Sanitize the repo name
-        sanitized_repo_name=$(echo $repo_name | awk -F'/' '{print $NF}')
-        sanitized_name=$(echo $repo_name | cut -d'/' -f1)
+        sanitized_repo_name=$(echo $repo_name | cut -d'/' -f1)
+        sanitized_name=$(echo $repo_name | awk -F'/' '{print $NF}')
         #Change directory to the chart file directory
         pushd $chartSourcePath >/dev/null
 
