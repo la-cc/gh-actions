@@ -6,7 +6,7 @@ To test it, fork this repo. I recommend you to fork the main branch only.
 
 ## Default - The GitHub Way
 
-**_NOTE:_** you need to change the workflow permissions from `Read repository contents and package permissions` to `Read and write permissions` under your repository (Settings -> Actions -> General -> Workflow permissions).
+**_NOTE:_** you need to change the workflow permissions from `Read repository contents and package permissions` to `Read and write permissions` under your repository (Settings -> Actions -> General -> Workflow permissions). You have also to set `Allow GitHub Actions to create and approve pull request`
 
 You can keep the config like:
 
@@ -33,6 +33,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        #with:
+        #  ref: main
 
       - name: Helm Dependencies
         uses: ./helm-dependencies
@@ -81,6 +83,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        #with:
+        #  ref: main
 
       - name: Helm Dependencies
         uses: ./helm-dependencies
@@ -139,6 +143,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        #with:
+        #  ref: main
 
       - name: Helm Dependencies
         uses: la-cc/gh-actions/helm-dependencies@v0.0.3-1
