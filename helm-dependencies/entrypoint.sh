@@ -44,6 +44,8 @@ function checkHelmDependencies() {
 
         # Name of the dependency like External DNS
         name=$(echo "${dependencies}" | yq e ".dependencies[$i].name")
+        # Lowercase name of the dependency like external-dns
+        lower_name=$(echo $name | tr '[:upper:]' '[:lower:]')
         # Path to the Chart.yaml file
         chart_file=$chartSourcePath/Chart.yaml
         # Path to the version number in the Chart.yaml file like 6.20.0
