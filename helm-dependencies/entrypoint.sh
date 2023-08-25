@@ -26,14 +26,11 @@ function initGit {
     git config user.email $PARAM_GIT_USER_EMAIL
     git config user.name $PARAM_GIT_USER_NAME
 
+    # Set source branch
+    git checkout $PARAM_GIT_DEFAULT_BRANCH
+
     # fetch existing remote branches
     git fetch origin --prune
-}
-
-function setSourceBranch() {
-
-    # Set the source branch
-    git checkout $PARAM_GIT_DEFAULT_BRANCH
 }
 
 function readDependenciesFromFile() {
@@ -95,7 +92,7 @@ function diffBetweenVersions() {
     if [ "$version" != "$latest_version" ]; then
         echo "There is a difference between the versions."
 
-        tplBranchName=update-helm-$sanitized_name-$lower_name-from-$version-to-$latest_version
+        tplBranchName=update-helm-$sanitized_name-$latest_version
 
         # returns true if the string is not empty
         if [[ -n $(git show-ref $tplBranchName) ]] && [[ "$PARAM_DRY_RUN" != "true" ]]; then
@@ -172,8 +169,6 @@ function dryRun() {
 
 function start() {
 
-    # Set to the source branch
-    #setSourceBranch
     # Read the file
     readDependenciesFromFile
     # Check if the dependencies are up to date
